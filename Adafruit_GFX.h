@@ -1,5 +1,6 @@
 #ifndef _ADAFRUIT_GFX_H
 #define _ADAFRUIT_GFX_H
+#define test
 
 #if ARDUINO >= 100
  #include "Arduino.h"

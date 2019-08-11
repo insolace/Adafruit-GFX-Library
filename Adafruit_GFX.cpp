@@ -185,6 +185,7 @@ void Adafruit_GFX::startWrite(){
 */
 /**************************************************************************/
 void Adafruit_GFX::writePixel(int16_t x, int16_t y, uint16_t color){
+    //Serial.println("writepix");
     drawPixel(x, y, color);
 }
 
@@ -1076,7 +1077,11 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
   uint16_t color, uint16_t bg, uint8_t size_x, uint8_t size_y) {
 
     if(!gfxFont) { // 'Classic' built-in font
-
+        //Serial.print("drawChar w");
+        //Serial.print(_width);
+        //Serial.print(" h");
+        //Serial.println(_height);
+        
         if((x >= _width)            || // Clip right
            (y >= _height)           || // Clip bottom
            ((x + 6 * size_x - 1) < 0) || // Clip left
@@ -1088,24 +1093,34 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
         startWrite();
         for(int8_t i=0; i<5; i++ ) { // Char bitmap = 5 columns
             uint8_t line = pgm_read_byte(&font[c * 5 + i]);
-            for(int8_t j=0; j<8; j++, line >>= 1) {
+            for(int8_t j=0; j<8; j++, line >>= 1) {  // = 8 rows?
                 if(line & 1) {
                     if(size_x == 1 && size_y == 1)
                         writePixel(x+i, y+j, color);
                     else
                         writeFillRect(x+i*size_x, y+j*size_y, size_x, size_y, color);
-                } else if(bg != color) {
+                    //Serial.print("wfr_x");
+                    //Serial.print(x+i*size_x);
+                    //Serial.print(", y");
+                    //Serial.print(y+j*size_y);
+                    //Serial.print(", w");
+                    //Serial.print(size_x);
+                    //Serial.print(", h");
+                    //Serial.println(size_y);
+                    
+                
+                } /*else if(bg != color) {
                     if(size_x == 1 && size_y == 1)
                         writePixel(x+i, y+j, bg);
                     else
                         writeFillRect(x+i*size_x, y+j*size_y, size_x, size_y, bg);
-                }
+                }*/
             }
         }
-        if(bg != color) { // If opaque, draw vertical line for last column
+        /*if(bg != color) { // If opaque, draw vertical line for last column
             if(size_x == 1 && size_y == 1) writeFastVLine(x+5, y, 8, bg);
             else          writeFillRect(x+5*size_x, y, size_x, 8*size_y, bg);
-        }
+        }*/
         endWrite();
 
     } else { // Custom font
@@ -1177,6 +1192,7 @@ void Adafruit_GFX::drawChar(int16_t x, int16_t y, unsigned char c,
 */
 /**************************************************************************/
 size_t Adafruit_GFX::write(uint8_t c) {
+    //Serial.println("write");
     if(!gfxFont) { // 'Classic' built-in font
 
         if(c == '\n') {                        // Newline?
@@ -1248,20 +1264,16 @@ void Adafruit_GFX::setTextSize(uint8_t s_x, uint8_t s_y) {
     @param  x   0 thru 3 corresponding to 4 cardinal rotations
 */
 /**************************************************************************/
-void Adafruit_GFX::setRotation(uint8_t x) {
-    rotation = (x & 3);
-    switch(rotation) {
-        case 0:
-        case 2:
-            _width  = WIDTH;
-            _height = HEIGHT;
-            break;
-        case 1:
-        case 3:
-            _width  = HEIGHT;
-            _height = WIDTH;
-            break;
-    }
+void Adafruit_GFX::setRotationA(uint8_t r, uint16_t w, uint16_t h) {
+    rotation = r;
+    //rotation = (x & 3);
+    _width = w;
+    _height = h;
+    
+    //Serial.print("srA w");
+    //Serial.print(_width);
+    //Serial.print(", srA h");
+    //Serial.println(_height);
 }
 
 /**************************************************************************/
@@ -1697,19 +1709,19 @@ void GFXcanvas1::drawPixel(int16_t x, int16_t y, uint16_t color) {
 
     if(buffer) {
         if((x < 0) || (y < 0) || (x >= _width) || (y >= _height)) return;
-
+        //Serial.println("GFXdrawpix");
         int16_t t;
         switch(rotation) {
-            case 1:
+            case 1:  // 90 degrees
                 t = x;
                 x = WIDTH  - 1 - y;
                 y = t;
                 break;
-            case 2:
+            case 2:  // 180 degrees
                 x = WIDTH  - 1 - x;
                 y = HEIGHT - 1 - y;
                 break;
-            case 3:
+            case 3:  // 270 degrees
                 t = x;
                 x = y;
                 y = HEIGHT - 1 - t;
@@ -1938,3 +1950,21 @@ void GFXcanvas16::byteSwap(void) {
         for(i=0; i<pixels; i++) buffer[i] = __builtin_bswap16(buffer[i]);
     }
 }
+
+/**************************************************************************/
+/*!
+ Returns the current X cursor
+ 
+ @return  The X location of cursor
+ */
+/**************************************************************************/
+uint16_t  Adafruit_GFX::getCursorX(void) { return cursor_x; }
+
+/**************************************************************************/
+/*!
+ Returns the current Y cursor
+ 
+ @return  The Y location of cursor
+ */
+/**************************************************************************/
+uint16_t  Adafruit_GFX::getCursorY(void) { return cursor_y; }

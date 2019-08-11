@@ -33,7 +33,7 @@ class Adafruit_GFX : public Print {
   // CONTROL API
   // These MAY be overridden by the subclass to provide device-specific
   // optimized code.  Otherwise 'generic' versions are used.
-  virtual void setRotation(uint8_t r);
+  virtual void setRotationA(uint8_t r, uint16_t w, uint16_t h);
   virtual void invertDisplay(boolean i);
 
   // BASIC DRAW API
@@ -107,7 +107,10 @@ class Adafruit_GFX : public Print {
     setTextSize(uint8_t sx, uint8_t sy),
     setFont(const GFXfont *f = NULL);
 
-  /**********************************************************************/
+  uint16_t getCursorX(void);
+  uint16_t getCursorY(void);
+
+    /**********************************************************************/
   /*!
     @brief  Set text cursor location
     @param  x    X coordinate in pixels
@@ -201,7 +204,7 @@ class Adafruit_GFX : public Print {
     @returns    X coordinate in pixels
   */
   /************************************************************************/
-  int16_t getCursorX(void) const { return cursor_x; }
+  uint16_t getCursorX(void) const { return cursor_x; }
 
   /************************************************************************/
   /*!
@@ -259,6 +262,7 @@ class Adafruit_GFX_Button {
    uint16_t textcolor, char *label, uint8_t textsize_x, uint8_t textsize_y);
   void drawButton(boolean inverted = false);
   boolean contains(int16_t x, int16_t y);
+
 
   /**********************************************************************/
   /*!
